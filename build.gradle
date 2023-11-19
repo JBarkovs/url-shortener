@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.example'
-version = '0.0.1-SNAPSHOT'
+version = ''
 
 java {
     sourceCompatibility = '17'
@@ -29,4 +29,20 @@ tasks.named('bootBuildImage') {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+task runDocker(type: Exec) {
+    dependsOn 'buildJarAndDocker'
+
+    // Run image
+    // docker run -d -p 8080:8080 spring-app
+    commandLine 'docker', 'run', '--detach', '--publish', '8080:8080', 'spring-url-app'
+}
+
+task buildJarAndDocker(type: Exec) {
+    dependsOn 'bootJar'
+
+    // Build Docker image
+    // docker build --force-rm --rm --file ./docker/Dockerfile --tag spring-app .
+    commandLine 'docker', 'build', '--force-rm', '--rm', '--file', './docker/Dockerfile', '--tag', 'spring-url-app', '.'
 }
