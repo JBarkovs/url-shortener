@@ -1,8 +1,10 @@
 package com.example.urlshortener.shortener;
 
 import com.example.urlshortener.encoder.Encoder;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
 import static java.util.Optional.ofNullable;
 
 @Service
@@ -12,6 +14,14 @@ public class ShortenerService {
 
     private final Encoder encoder;
     private final ShortenerDao shortenerDao;
+
+    public void getOriginalUrl(String shortCode, HttpServletResponse response) {
+        ofNullable(shortenerDao.getOriginalUrl(shortCode))
+                .ifPresent(originalUrl -> {
+                    response.setStatus(SC_MOVED_TEMPORARILY);
+                    response.setHeader("Location", originalUrl);
+                });
+    }
 
     public ShortenerService(ShortenerDao shortenerDao) {
         this.encoder = new Encoder(ALGORITHM);
